@@ -3,68 +3,92 @@ import requests
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# ----------------------------
-# CONFIG
-# ----------------------------
 API_URL = "https://supply-chain-api-zssg.onrender.com/forecast"
 
-st.set_page_config(
-    page_title="Supply Chain Dashboard",
-    layout="wide",
-    page_icon="📦"
-)
+# ------------------ CONFIG ------------------
+st.set_page_config(page_title="Supply Chain AI", layout="wide")
 
-# ----------------------------
-# CUSTOM CSS (PREMIUM UI)
-# ----------------------------
+# ------------------ ULTRA CSS ------------------
 st.markdown("""
 <style>
+
 body {
-    background-color: #0E1117;
+    background: linear-gradient(135deg, #0E1117, #111827);
 }
-.metric-card {
-    background: #1c1f26;
+
+/* Glass Cards */
+.glass {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
     padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
+
+/* KPI Cards */
+.metric-card {
+    padding: 25px;
+    border-radius: 16px;
+    text-align: center;
+    background: linear-gradient(145deg, #1f2937, #111827);
+    transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 0 25px rgba(76, 175, 80, 0.7);
+}
+
+.metric-title {
+    color: #9ca3af;
+    font-size: 14px;
+}
+
 .metric-value {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: bold;
 }
-.metric-title {
-    font-size: 14px;
-    color: gray;
+
+/* Button */
+.stButton>button {
+    background: linear-gradient(90deg, #4CAF50, #22c55e);
+    color: white;
+    border-radius: 12px;
+    padding: 10px 25px;
+    font-size: 16px;
+    border: none;
 }
-.sidebar .sidebar-content {
-    background-color: #111;
+
+/* Section Titles */
+.section-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-top: 20px;
 }
+
 </style>
 """, unsafe_allow_html=True)
 
-# ----------------------------
-# SIDEBAR (CONTROLS)
-# ----------------------------
-st.sidebar.title("⚙️ Controls")
+# ------------------ SIDEBAR ------------------
+st.sidebar.markdown("## ⚙️ Controls")
 
 start_date = st.sidebar.date_input("Start Date")
 product = st.sidebar.selectbox("Select Product", ["Product A", "Product B", "Product C"])
 
-# ----------------------------
-# HEADER
-# ----------------------------
-st.title("📦 Supply Chain Forecasting Dashboard")
-st.markdown("🔗 Connected to API")
+# ------------------ HEADER ------------------
+st.markdown("# 📦 Supply Chain AI Dashboard")
+st.markdown("### 🚀 Intelligent Demand Forecasting System")
 
-st.markdown("### Predict future demand using ML models 🚀")
+st.caption("🟢 Connected to Live API")
 
-# ----------------------------
-# BUTTON
-# ----------------------------
-if st.button("Generate Forecast"):
+# ------------------ BUTTON ------------------
+col1, col2, col3 = st.columns([1,2,1])
+with col2:
+    generate = st.button("✨ Generate Forecast")
 
-    with st.spinner("Fetching forecast..."):
+# ------------------ MAIN ------------------
+if generate:
+    with st.spinner("Running AI model..."):
 
         response = requests.get(API_URL)
         data = response.json()
@@ -75,15 +99,13 @@ if st.button("Generate Forecast"):
             dates = pd.date_range(start=start_date, periods=len(forecast))
 
             df = pd.DataFrame({
-                "Date": dates,
+                "Date": dates.strftime("%Y-%m-%d"),
                 "Forecast": forecast
             })
 
-            st.success("Forecast generated successfully!")
+            st.success("✅ Forecast generated successfully!")
 
-            # ----------------------------
-            # KPI CARDS
-            # ----------------------------
+            # ---------------- KPI ----------------
             avg = sum(forecast) / len(forecast)
             max_val = max(forecast)
             trend = forecast[-1] - forecast[0]
@@ -100,58 +122,62 @@ if st.button("Generate Forecast"):
             col2.markdown(f"""
             <div class="metric-card">
                 <div class="metric-title">Max Demand</div>
-                <div class="metric-value" style="color:#2196F3;">{max_val:.2f}</div>
+                <div class="metric-value" style="color:#60A5FA;">{max_val:.2f}</div>
             </div>
             """, unsafe_allow_html=True)
 
             col3.markdown(f"""
             <div class="metric-card">
                 <div class="metric-title">Trend</div>
-                <div class="metric-value" style="color:#FF5252;">{trend:.2f}</div>
+                <div class="metric-value" style="color:#F87171;">{trend:.2f}</div>
             </div>
             """, unsafe_allow_html=True)
 
-            st.markdown("---")
+            # ---------------- INSIGHTS ----------------
+            st.markdown("### 🧠 AI Insights")
 
-            # ----------------------------
-            # TABLE
-            # ----------------------------
-            st.subheader("📋 Forecast Data")
+            if trend > 0:
+                st.success("📈 Demand is rising — consider increasing inventory.")
+            elif trend < 0:
+                st.warning("📉 Demand is falling — optimize stock levels.")
+            else:
+                st.info("⚖️ Demand is stable.")
+
+            # ---------------- TABLE ----------------
+            st.markdown("### 📋 Forecast Data")
+
             st.dataframe(df, use_container_width=True)
 
-            # ----------------------------
-            # DOWNLOAD BUTTON
-            # ----------------------------
             csv = df.to_csv(index=False).encode('utf-8')
+
             st.download_button(
-                "📥 Download Forecast CSV",
+                "📥 Download Forecast",
                 csv,
                 "forecast.csv",
                 "text/csv"
             )
 
-            # ----------------------------
-            # CUSTOM CHART (MATPLOTLIB)
-            # ----------------------------
-            st.subheader("📈 Forecast Visualization")
+            # ---------------- CHART ----------------
+            st.markdown("### 📈 Forecast Visualization")
 
-            fig, ax = plt.subplots(figsize=(12, 5))
+            fig, ax = plt.subplots(figsize=(12,5), facecolor='#0E1117')
+            ax.set_facecolor('#0E1117')
 
-            ax.plot(df["Date"], df["Forecast"], marker='o', color="#4CAF50")
+            ax.plot(df["Date"], df["Forecast"], color="#4CAF50", marker='o')
 
-            # Highlight peak
             peak_idx = df["Forecast"].idxmax()
             ax.scatter(df["Date"][peak_idx], df["Forecast"][peak_idx],
-                       color="red", s=100, label="Peak")
+                       color="red", s=120)
 
-            ax.set_title(f"{product} Demand Forecast (30 Days)")
-            ax.set_xlabel("Date")
-            ax.set_ylabel("Demand")
+            ax.set_title(f"{product} Forecast", color='white')
+            ax.tick_params(colors='white')
 
-            ax.grid(True, linestyle='--', alpha=0.3)
-            ax.legend()
+            for spine in ax.spines.values():
+                spine.set_color('#333')
+
+            ax.grid(alpha=0.2)
 
             st.pyplot(fig)
 
         else:
-            st.error("Error fetching data")
+            st.error("API error")
