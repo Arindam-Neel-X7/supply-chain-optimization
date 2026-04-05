@@ -1,0 +1,9 @@
+.env
+__pycache__/
+*.pyc
+outputs/
+venv/
+data/
+*.csv
+*.db
+*.zip
