@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 
 API_URL = "https://supply-chain-api-zssg.onrender.com/forecast"
 
@@ -160,16 +161,31 @@ if generate:
             # ---------------- CHART ----------------
             st.markdown("### 📈 Forecast Visualization")
 
-            fig, ax = plt.subplots(figsize=(12,5), facecolor='#0E1117')
+            fig, ax = plt.subplots(figsize=(12, 5), facecolor='#0E1117')
             ax.set_facecolor('#0E1117')
 
+            # Plot
             ax.plot(df["Date"], df["Forecast"], color="#4CAF50", marker='o')
 
+            # Highlight peak
             peak_idx = df["Forecast"].idxmax()
             ax.scatter(df["Date"][peak_idx], df["Forecast"][peak_idx],
                        color="red", s=120)
 
+            # ✅ FIX 1: Reduce number of ticks
+            ax.xaxis.set_major_locator(mdates.DayLocator(interval=3))  # show every 3rd day
+
+            # ✅ FIX 2: Format date nicely
+            ax.xaxis.set_major_formatter(mdates.DateFormatter('%b %d'))
+
+            # ✅ FIX 3: Rotate labels
+            plt.xticks(rotation=45)
+
+            # Styling
             ax.set_title(f"{product} Forecast", color='white')
+            ax.set_xlabel("Date", color='white')
+            ax.set_ylabel("Demand", color='white')
+
             ax.tick_params(colors='white')
 
             for spine in ax.spines.values():
@@ -178,6 +194,3 @@ if generate:
             ax.grid(alpha=0.2)
 
             st.pyplot(fig)
-
-        else:
-            st.error("API error")
