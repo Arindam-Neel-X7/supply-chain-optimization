@@ -132,9 +132,13 @@ Built and deployed a full-stack ML forecasting system with real-time API integra
 ## 🔮 Future Improvements
 
  Multi-product comparison dashboard
+ 
  Database integration (PostgreSQL)
+ 
  Automated retraining pipeline
+ 
  Authentication system
+ 
  Custom domain
 
 ---
