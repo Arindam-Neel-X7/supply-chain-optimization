@@ -1,5 +1,14 @@
 # 📦 AI-Powered Supply Chain Forecasting System
 
+![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green?logo=fastapi)
+![Streamlit](https://img.shields.io/badge/Streamlit-Frontend-red?logo=streamlit)
+![ML](https://img.shields.io/badge/Machine%20Learning-ARIMA-orange)
+![Status](https://img.shields.io/badge/Status-Live-success)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+[![Live App](https://img.shields.io/badge/Live-Dashboard-brightgreen?logo=streamlit)](https://supply-chain-optimization-x7.streamlit.app)
+
+
 🚀 A production-grade full-stack machine learning system for real-time demand forecasting with an interactive analytics dashboard.
 
 ---
