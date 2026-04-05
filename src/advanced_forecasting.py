@@ -15,7 +15,6 @@ from pmdarima import auto_arima
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import StackingRegressor
-from src.database import load_db_data
 
 # PATH SETUP
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,12 +24,24 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def load_data():
     file_path = os.path.join(BASE_DIR, "data", "processed", "cleaned_data.csv")
     df = pd.read_csv(file_path)
-    df['order_date'] = pd.to_datetime(df['order_date'])
     return df
 
 def load_live_dataset():
-    return load_db_data()
+    live_path = os.path.join(BASE_DIR, "data", "processed", "live_data.csv")
+    live_df = pd.read_csv(live_path)
 
+    live_df['order_date'] = pd.to_datetime(live_df['order_date'])
+
+    return live_df
+
+def load_full_data():
+    hist_df = load_data()
+    live_df = load_live_dataset()
+
+    df = pd.concat([hist_df, live_df], ignore_index=True)
+    df = df.sort_values("order_date")
+
+    return df
 
 # DYNAMIC FEATURE ENGINEERING
 
@@ -263,14 +274,9 @@ def main():
     print("FULLY DYNAMIC FORECASTING SYSTEM\n")
 
     # ================= LOAD DATA =================
-    df = load_data()
-    df_live = load_live_dataset()
+    df = load_full_data()
 
-    # Merge DB data
-    if not df_live.empty:
-        df = pd.concat([df, df_live], ignore_index=True)
-
-     # ================= CLEANING =================
+       # ================= CLEANING =================
 
     # Ensure datetime FIRST
     df['order_date'] = pd.to_datetime(df['order_date'], errors='coerce')
