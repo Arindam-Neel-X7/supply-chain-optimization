@@ -133,13 +133,9 @@ def train_model():
 # 🔮 FORECAST
 # ==============================
 def get_forecast(model_fit, steps=30):
-    if model_fit is None:
-        raise ValueError("Model is not initialized")
+    forecast = model_fit.forecast(steps=steps)
 
-    try:
-        forecast = model_fit.forecast(steps=steps)
-        return forecast.tolist()
+    forecast = forecast.clip(lower=0)   # 🔥 no negatives
+    forecast = forecast.round(2)        # optional
 
-    except Exception as e:
-        print("❌ Forecast error:", str(e))
-        raise e
+    return forecast.tolist()
