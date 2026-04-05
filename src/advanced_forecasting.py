@@ -81,7 +81,7 @@ def load_full_data():
 
     df = df.sort_values("order_date")
 
-    # 🚀 PRODUCTION OPTIMIZATION (VERY IMPORTANT)
+    # 🚀 LIMIT DATA FOR PERFORMANCE
     df = df.tail(100)
 
     return df
@@ -101,19 +101,23 @@ def train_model():
     # Aggregate time series
     ts = df.groupby('order_date')['sales'].sum()
 
-    # Ensure proper datetime index
+    # Ensure datetime index
     ts.index = pd.to_datetime(ts.index)
 
-    # 🔥 ADD HERE ↓↓↓
+    # 🔥 STEP 3: Proper scaling
     ts = ts.astype(float)
-    ts = ts.replace(0, 1)
 
-    print("Sales stats:", ts.describe())
-    print("First values:", ts.head())
+    # 🔥 STEP 4: REMOVE zero values instead of forcing 1
+    ts = ts[ts > 0]
+
+    # 🔍 DEBUG (optional but useful)
+    print("Min:", ts.min(), "Max:", ts.max())
+    print("Unique values:", ts.nunique())
+
     print("🤖 Training ARIMA model...")
 
     try:
-        model = ARIMA(ts, order=(5, 1, 2))  # 🔥 FIX HERE
+        model = ARIMA(ts, order=(5, 1, 2))  # improved model
         model_fit = model.fit()
 
         print("✅ Model trained successfully!")
