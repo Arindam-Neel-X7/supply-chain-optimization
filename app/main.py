@@ -13,12 +13,13 @@ def load_models():
     products = ["Product A", "Product B", "Product C"]
 
     for product in products:
-        print(f"🚀 Training model for {product}...")
+        try:
+            print(f"🚀 Training model for {product}...")
+            model_cache[product] = train_model(product)
+        except Exception as e:
+            print(f"❌ Failed for {product}: {e}")
 
-        # 👉 🔥 PLACE IT HERE
-        model_cache[product] = train_model(product)
-
-    print("✅ All models loaded!")
+    print("✅ Model loading complete")
 
 
 # ✅ HOME
@@ -32,18 +33,28 @@ def home():
 def forecast(product: str = "Product A"):
     global model_cache
 
-    if product not in model_cache:
-        return {"status": "error", "message": "Invalid product"}
+    try:
+        if product not in model_cache:
+            return {
+                "status": "error",
+                "message": f"Model not found for {product}"
+            }
 
-    model = model_cache[product]
+        model = model_cache[product]
 
-    forecast = get_forecast(model)
+        forecast = get_forecast(model)
 
-    return {
-        "status": "success",
-        "product": product,
-        "forecast": forecast
-    }
+        return {
+            "status": "success",
+            "product": product,
+            "forecast": forecast
+        }
+
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
 
 
 # ✅ HEALTH CHECK
