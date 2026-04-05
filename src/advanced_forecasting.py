@@ -150,10 +150,30 @@ def train_model(product="Product A"):
 # ==============================
 # 🔮 FORECAST
 # ==============================
+import numpy as np
+
 def get_forecast(model_fit, steps=30):
     forecast = model_fit.forecast(steps=steps)
 
-    # 🔥 FIX: safe clipping (works for numpy + all cases)
+    # Convert to numpy
+    forecast = np.array(forecast)
+
+    # 🔥 Ensure non-negative
+    forecast = np.maximum(forecast, 0)
+
+    # ==============================
+    # 🚀 ADD LIVE VARIATION
+    # ==============================
+
+    # Small controlled randomness (2–5%)
+    noise = np.random.normal(0, forecast * 0.03)
+
+    # Add slight trend shift
+    drift = np.linspace(-2, 2, steps)
+
+    forecast = forecast + noise + drift
+
+    # Final cleanup
     forecast = np.maximum(forecast, 0)
 
     return forecast.tolist()
