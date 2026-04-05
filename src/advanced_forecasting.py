@@ -24,6 +24,18 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def load_data():
     file_path = os.path.join(BASE_DIR, "data", "processed", "cleaned_data.csv")
     df = pd.read_csv(file_path)
+
+    # 🔥 standardize columns
+    df.columns = df.columns.str.strip().str.lower()
+
+    # 🔥 handle different naming cases
+    if 'order_date' in df.columns:
+        df['order_date'] = pd.to_datetime(df['order_date'])
+    elif 'order date' in df.columns:
+        df['order_date'] = pd.to_datetime(df['order date'])
+    else:
+        raise ValueError(f"order_date column not found. Available: {df.columns}")
+
     return df
 
 def load_live_dataset():
