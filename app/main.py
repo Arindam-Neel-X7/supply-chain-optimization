@@ -4,22 +4,19 @@ from src.advanced_forecasting import train_model, get_forecast
 app = FastAPI(title="Supply Chain Forecasting API 🚀")
 
 # ✅ GLOBAL MODEL CACHE
-model_cache = None
+model_cache = {}
 
-
-# ✅ TRAIN MODEL ON STARTUP (IMPORTANT)
 @app.on_event("startup")
-def load_model():
+def load_models():
     global model_cache
 
-    print("🚀 Training model on startup...")
+    products = ["Product A", "Product B", "Product C"]
 
-    try:
-        model_cache = train_model()
-        print("✅ Model loaded successfully!")
+    for product in products:
+        print(f"🚀 Training model for {product}...")
+        model_cache[product] = train_model(product)
 
-    except Exception as e:
-        print("❌ Error during model training:", str(e))
+    print("✅ All models loaded!")
 
 
 # ✅ HOME
@@ -30,22 +27,24 @@ def home():
 
 # ✅ FORECAST ENDPOINT (FAST ⚡)
 @app.get("/forecast")
-def forecast():
+def forecast(product: str = "Product A"):
     global model_cache
 
     try:
-        if model_cache is None:
-            return {"status": "error", "message": "Model not loaded"}
+        if product not in model_cache:
+            return {"status": "error", "message": "Invalid product"}
 
-        forecast = get_forecast(model_cache)
+        model = model_cache[product]
+
+        forecast = get_forecast(model)
 
         return {
             "status": "success",
+            "product": product,
             "forecast": forecast
         }
 
     except Exception as e:
-        print("❌ ERROR:", str(e))
         return {"status": "error", "message": str(e)}
 
 

@@ -90,44 +90,25 @@ def load_full_data():
 # ==============================
 # 📈 TRAIN MODEL (STARTUP ONLY)
 # ==============================
-def train_model():
-    print("📊 Loading and preparing data...")
-
+def train_model(product="Product A"):
     df = load_full_data()
 
-    if 'sales' not in df.columns:
-        raise ValueError(f"'sales' column missing. Available columns: {df.columns}")
+    # 🔥 FILTER DATA
+    if "product" in df.columns:
+        df = df[df["product"] == product]
 
-    # Aggregate time series
+    if df.empty:
+        raise ValueError(f"No data for {product}")
+
     ts = df.groupby('order_date')['sales'].sum()
-
-    # Ensure datetime index
     ts.index = pd.to_datetime(ts.index)
 
-    # 🔥 STEP 3: Proper scaling
+    ts = ts.asfreq('D').fillna(method='ffill')
     ts = ts.astype(float)
-
-    # 🔥 STEP 4: REMOVE zero values instead of forcing 1
     ts = ts[ts > 0]
 
-    # 🔍 DEBUG (optional but useful)
-    print("Min:", ts.min(), "Max:", ts.max())
-    print("Unique values:", ts.nunique())
-
-    print("🤖 Training ARIMA model...")
-
-    try:
-        model = ARIMA(ts, order=(5, 1, 2))  # improved model
-        model_fit = model.fit()
-
-        print("✅ Model trained successfully!")
-
-        return model_fit
-
-    except Exception as e:
-        print("❌ Model training failed:", str(e))
-        raise e
-
+    model = ARIMA(ts, order=(2,1,2))
+    return model.fit()
 
 # ==============================
 # 🔮 FORECAST
