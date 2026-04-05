@@ -1,8 +1,7 @@
 import streamlit as st
 import requests
 import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
+import plotly.express as px
 
 API_URL = "https://supply-chain-api-zssg.onrender.com/forecast"
 
@@ -161,36 +160,57 @@ if generate:
             # ---------------- CHART ----------------
             st.markdown("### 📈 Forecast Visualization")
 
-            fig, ax = plt.subplots(figsize=(12, 5), facecolor='#0E1117')
-            ax.set_facecolor('#0E1117')
+            # Convert Date to datetime
+            df["Date"] = pd.to_datetime(df["Date"])
 
-            # Plot
-            ax.plot(df["Date"], df["Forecast"], color="#4CAF50", marker='o')
+            # Create base chart
+            fig = px.line(
+                df,
+                x="Date",
+                y="Forecast",
+                title=f"{product} Demand Forecast",
+                markers=True
+            )
 
-            # Highlight peak
+            # 🔥 Clean hover
+            fig.update_traces(
+                name="Demand",
+                hovertemplate="<b>Date:</b> %{x|%b %d}<br><b>Demand:</b> %{y:.2f}"
+            )
+
+            # 🎨 Dark theme
+            fig.update_layout(
+                template="plotly_dark",
+                plot_bgcolor="#0E1117",
+                paper_bgcolor="#0E1117",
+                font=dict(color="white"),
+                legend=dict(
+                    bgcolor="rgba(0,0,0,0)",
+                    font=dict(color="white")
+                )
+            )
+
+            # 🔴 Highlight PEAK
             peak_idx = df["Forecast"].idxmax()
-            ax.scatter(df["Date"][peak_idx], df["Forecast"][peak_idx],
-                       color="red", s=120)
 
-            # ✅ FIX 1: Reduce number of ticks
-            ax.xaxis.set_major_locator(mdates.DayLocator(interval=3))  # show every 3rd day
+            fig.add_scatter(
+                x=[df["Date"][peak_idx]],
+                y=[df["Forecast"][peak_idx]],
+                mode="markers",
+                marker=dict(color="red", size=12),
+                name="Peak"
+            )
 
-            # ✅ FIX 2: Format date nicely
-            ax.xaxis.set_major_formatter(mdates.DateFormatter('%b %d'))
+            # 🔵 Highlight LOWEST POINT (NEW)
+            low_idx = df["Forecast"].idxmin()
 
-            # ✅ FIX 3: Rotate labels
-            plt.xticks(rotation=45)
+            fig.add_scatter(
+                x=[df["Date"][low_idx]],
+                y=[df["Forecast"][low_idx]],
+                mode="markers",
+                marker=dict(color="#3B82F6", size=12),  # blue
+                name="Lowest"
+            )
 
-            # Styling
-            ax.set_title(f"{product} Forecast", color='white')
-            ax.set_xlabel("Date", color='white')
-            ax.set_ylabel("Demand", color='white')
-
-            ax.tick_params(colors='white')
-
-            for spine in ax.spines.values():
-                spine.set_color('#333')
-
-            ax.grid(alpha=0.2)
-
-            st.pyplot(fig)
+            # 🚀 Show chart
+            st.plotly_chart(fig, use_container_width=True)
