@@ -104,10 +104,16 @@ def train_model():
     # Ensure proper datetime index
     ts.index = pd.to_datetime(ts.index)
 
+    # 🔥 ADD HERE ↓↓↓
+    ts = ts.astype(float)
+    ts = ts.replace(0, 1)
+
+    print("Sales stats:", ts.describe())
+    print("First values:", ts.head())
     print("🤖 Training ARIMA model...")
 
     try:
-        model = ARIMA(ts, order=(1, 1, 0))  # lightweight + stable
+        model = ARIMA(ts, order=(5, 1, 2))  # 🔥 FIX HERE
         model_fit = model.fit()
 
         print("✅ Model trained successfully!")
