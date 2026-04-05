@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from src.advanced_forecasting import train_model, get_forecast
+import numpy as np
 
 app = FastAPI(title="Supply Chain Forecasting API 🚀")
 

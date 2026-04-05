@@ -153,7 +153,7 @@ def train_model(product="Product A"):
 def get_forecast(model_fit, steps=30):
     forecast = model_fit.forecast(steps=steps)
 
-    forecast = forecast.clip(lower=0)   # 🔥 no negatives
-    forecast = forecast.round(2)        # optional
+    # 🔥 FIX: safe clipping (works for numpy + all cases)
+    forecast = np.maximum(forecast, 0)
 
     return forecast.tolist()
