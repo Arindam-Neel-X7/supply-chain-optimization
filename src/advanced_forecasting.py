@@ -20,21 +20,26 @@ from sklearn.ensemble import StackingRegressor
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # LOAD DATA
+def standardize_columns(df):
+    df.columns = df.columns.str.strip().str.lower()
+
+    if 'order_date' in df.columns:
+        df['order_date'] = pd.to_datetime(df['order_date'])
+
+    elif 'order date' in df.columns:
+        df.rename(columns={'order date': 'order_date'}, inplace=True)
+        df['order_date'] = pd.to_datetime(df['order_date'])
+
+    else:
+        raise ValueError(f"order_date column not found: {df.columns}")
+
+    return df
 
 def load_data():
     file_path = os.path.join(BASE_DIR, "data", "processed", "cleaned_data.csv")
     df = pd.read_csv(file_path)
 
-    # 🔥 standardize columns
-    df.columns = df.columns.str.strip().str.lower()
-
-    # 🔥 handle different naming cases
-    if 'order_date' in df.columns:
-        df['order_date'] = pd.to_datetime(df['order_date'])
-    elif 'order date' in df.columns:
-        df['order_date'] = pd.to_datetime(df['order date'])
-    else:
-        raise ValueError(f"order_date column not found. Available: {df.columns}")
+    df = standardize_columns(df)   # ✅ USE HERE
 
     return df
 
@@ -42,7 +47,7 @@ def load_live_dataset():
     live_path = os.path.join(BASE_DIR, "data", "processed", "live_data.csv")
     live_df = pd.read_csv(live_path)
 
-    live_df['order_date'] = pd.to_datetime(live_df['order_date'])
+    live_df = standardize_columns(live_df)   # ✅ USE HERE
 
     return live_df
 
