@@ -14,6 +14,8 @@ def load_models():
 
     for product in products:
         print(f"🚀 Training model for {product}...")
+
+        # 👉 🔥 PLACE IT HERE
         model_cache[product] = train_model(product)
 
     print("✅ All models loaded!")
@@ -30,22 +32,18 @@ def home():
 def forecast(product: str = "Product A"):
     global model_cache
 
-    try:
-        if product not in model_cache:
-            return {"status": "error", "message": "Invalid product"}
+    if product not in model_cache:
+        return {"status": "error", "message": "Invalid product"}
 
-        model = model_cache[product]
+    model = model_cache[product]
 
-        forecast = get_forecast(model)
+    forecast = get_forecast(model)
 
-        return {
-            "status": "success",
-            "product": product,
-            "forecast": forecast
-        }
-
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
+    return {
+        "status": "success",
+        "product": product,
+        "forecast": forecast
+    }
 
 
 # ✅ HEALTH CHECK

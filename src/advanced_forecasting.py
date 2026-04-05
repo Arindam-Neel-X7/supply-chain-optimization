@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import numpy as np
 from statsmodels.tsa.arima.model import ARIMA
 
 # ==============================
@@ -90,10 +91,12 @@ def load_full_data():
 # ==============================
 # 📈 TRAIN MODEL (STARTUP ONLY)
 # ==============================
+
+
 def train_model(product="Product A"):
     df = load_full_data()
 
-    # 🔥 FILTER DATA
+    # 🔥 FILTER PRODUCT
     if "product" in df.columns:
         df = df[df["product"] == product]
 
@@ -105,10 +108,44 @@ def train_model(product="Product A"):
 
     ts = ts.asfreq('D').fillna(method='ffill')
     ts = ts.astype(float)
-    ts = ts[ts > 0]
 
-    model = ARIMA(ts, order=(2,1,2))
-    return model.fit()
+    # 🔍 DATA DIAGNOSTICS
+    data_points = len(ts)
+    unique_vals = ts.nunique()
+
+    print(f"{product}: points={data_points}, unique={unique_vals}")
+
+    # ==============================
+    # 🧠 DECISION ENGINE
+    # ==============================
+
+    # 🚨 CASE 1: VERY POOR DATA
+    if data_points < 10 or unique_vals <= 1:
+        print(f"⚠️ Using MEAN fallback for {product}")
+
+        value = ts.mean()
+
+        class MeanModel:
+            def forecast(self, steps=30):
+                return np.array([value] * steps)
+
+        return MeanModel()
+
+    # ⚠️ CASE 2: LOW VARIATION
+    elif unique_vals < 5:
+        print(f"⚠️ Using SMOOTHING model for {product}")
+
+        ts_smooth = ts.rolling(window=3, min_periods=1).mean()
+
+        model = ARIMA(ts_smooth, order=(1,1,1))
+        return model.fit()
+
+    # ✅ CASE 3: GOOD DATA
+    else:
+        print(f"✅ Using ARIMA for {product}")
+
+        model = ARIMA(ts, order=(2,1,2))
+        return model.fit()
 
 # ==============================
 # 🔮 FORECAST
