@@ -3,7 +3,15 @@ __pycache__/
 *.pyc
 outputs/
 venv/
-data/
-*.csv
-*.db
+
+# Ignore raw + heavy data
+data/raw/
 *.zip
+*.db
+
+# Ignore ALL CSV by default
+*.csv
+
+# ✅ BUT allow processed CSV files
+!data/processed/
+!data/processed/*.csv
