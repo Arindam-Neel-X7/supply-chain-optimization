@@ -1,12 +1,14 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from statsmodels.tsa.arima.model import ARIMA
+from src.advanced_forecasting import standardize_columns
 
 # LOAD DATA
 
 def load_data():
     file_path = "../data/processed/cleaned_data.csv"
     df = pd.read_csv(file_path)
+    df = standardize_columns(df)
     df['order_date'] = pd.to_datetime(df['order_date'])
     return df
 
