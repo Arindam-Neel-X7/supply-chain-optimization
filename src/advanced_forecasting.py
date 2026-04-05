@@ -30,6 +30,10 @@ def standardize_columns(df):
         df.rename(columns={'order date': 'order_date'}, inplace=True)
         df['order_date'] = pd.to_datetime(df['order_date'])
 
+    elif 'timestamp' in df.columns:   # 🔥 ADD THIS BLOCK
+        df.rename(columns={'timestamp': 'order_date'}, inplace=True)
+        df['order_date'] = pd.to_datetime(df['order_date'])
+
     else:
         raise ValueError(f"order_date column not found: {df.columns}")
 
